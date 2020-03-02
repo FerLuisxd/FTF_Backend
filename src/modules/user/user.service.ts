@@ -12,28 +12,35 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     let users = await this.usersRepository.find();
-    return users.filter(x=>x.deleted==false)
+    return users.filter(x => x.deleted == false);
   }
   async findOne(id: string): Promise<User> {
-    let response = await  this.usersRepository.findOne(id);
-    if(response.deleted){
-      throw new HttpException('', HttpStatus.NOT_FOUND)
+    let response = await this.usersRepository.findOne(id);
+    if (response) {
+      if (response.deleted) {
+        throw new HttpException('', HttpStatus.NOT_FOUND);
+      }
+      return response;
     }
     return response
   }
   async findOneByMail(email: string): Promise<User> {
     let response = await this.usersRepository.findOne({ email: email });
-    if(response.deleted){
-      throw new HttpException('', HttpStatus.NOT_FOUND)
+    if (response) {
+      if (response.deleted) {
+        throw new HttpException('', HttpStatus.NOT_FOUND);
+      }
+      return response;
     }
     return response
   }
 
-  async removeOne(id: string): Promise<void> {
+  async removeOne(id: string): Promise<any> {
     let user = await this.findOne(id);
+    console.log('proceso delete',id,user)
     if (user) {
       user.deleted = true;
-      await this.usersRepository.save(user);
+      return await this.usersRepository.save(user);
     }
     throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
   }
@@ -46,14 +53,17 @@ export class UserService {
     date = new Date(date.setHours(date.getHours() - 5));
     body.registered = date;
     body.lastVisit = date;
-    body.enabled = true
-    body.activated =true
+    body.enabled = true;
+    body.activated = true;
     return this.usersRepository.save(body);
   }
   async updateOne(id: string, body: User) {
     let user = await this.findOne(id);
     if (user) {
-      return this.usersRepository.save(body);
+      return this.usersRepository.save({
+        ...user,
+        ...body
+      });
     }
     throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
   }
