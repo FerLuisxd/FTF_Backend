@@ -1,5 +1,6 @@
 import { Controller, Get, Delete, Put, Post, Param, Body } from '@nestjs/common';
 import { UserService } from './user.service';
+import { User } from './entity/user.entity';
 
 @Controller('users')
 export class UserController {
@@ -16,12 +17,12 @@ export class UserController {
   }
 
   @Post()
-  newOne(@Body() body) {
+  newOne(@Body() body:User) {
     return this.userService.newOne(body);
   }
 
   @Put(':id')
-  updateOne(@Param('id') id,@Body() body) {
+  updateOne(@Param('id') id,@Body() body:User) {
     return this.userService.updateOne(id,body);
   }
 
