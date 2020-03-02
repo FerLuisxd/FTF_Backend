@@ -21,8 +21,12 @@ export class UserService {
     }
     return response
   }
-  findOneByMail(email: string): Promise<User> {
-    return this.usersRepository.findOne({ email: email });
+  async findOneByMail(email: string): Promise<User> {
+    let response = await this.usersRepository.findOne({ email: email });
+    if(response.deleted){
+      throw new HttpException('', HttpStatus.NOT_FOUND)
+    }
+    return response
   }
 
   async removeOne(id: string): Promise<void> {
